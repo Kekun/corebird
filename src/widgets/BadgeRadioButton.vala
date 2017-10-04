@@ -39,6 +39,7 @@ public class BadgeRadioButton : Gtk.RadioButton {
     this.set_mode (false);
     this.focus_on_click = false;
     this.hexpand = true;
+    i.margin_start = i.margin_end = 6;
 
     if (text != "") {
       this.tooltip_text = text;
@@ -47,20 +48,27 @@ public class BadgeRadioButton : Gtk.RadioButton {
     }
   }
 
+  public override void adjust_size_request (Gtk.Orientation orientation, ref int minimum_size, ref int natural_size) {
+    if (orientation == Gtk.Orientation.VERTICAL)
+      return;
+
+    natural_size = minimum_size * 2;
+  }
+
   public override bool draw (Cairo.Context ct) {
     base.draw (ct);
     if (!show_badge || this.get_child () == null)
       return Gdk.EVENT_PROPAGATE;
 
 
-    Gtk.Allocation child_allocation;
     Gtk.Allocation allocation;
-    this.get_child ().get_allocation (out child_allocation);
+    var child = this.get_child ();
+    var child_requisition = child.get_requisition ();
     this.get_allocation (out allocation);
 
     var context = this.get_style_context ();
-    int x = allocation.x - child_allocation.x + child_allocation.width - BADGE_SIZE;
-    int y = 5;
+    int x = int.max ((allocation.width - child_requisition.width) / 2 + child_requisition.width - child.margin_right, 3);
+    int y = int.max ((allocation.height - child_requisition.height) / 2 + child.margin_top - BADGE_SIZE, BADGE_SIZE / 2 + 3);
 
     context.save ();
     context.add_class ("badge");

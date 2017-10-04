@@ -25,7 +25,6 @@ public class MainWidget : Gtk.Box {
   private ImpostorWidget stack_impostor  = new ImpostorWidget ();
   private Gtk.Box top_box;
   private Gtk.Stack stack;
-  private Gtk.Revealer topbar_revealer;
   public int cur_page_id {
     get {
       return history.get_current ();
@@ -40,15 +39,11 @@ public class MainWidget : Gtk.Box {
 
     /* Create widgets */
     this.set_orientation (Gtk.Orientation.VERTICAL);
-    this.topbar_revealer = new Gtk.Revealer ();
-    topbar_revealer.set_reveal_child (true);
-    topbar_revealer.set_transition_type (Gtk.RevealerTransitionType.SLIDE_UP);
     this.top_box = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
     top_box.set_hexpand (true);
+    top_box.set_halign (Gtk.Align.CENTER);
     top_box.set_homogeneous (true);
-    top_box.get_style_context ().add_class ("topbar");
-    topbar_revealer.add (top_box);
-    this.add (topbar_revealer);
+    top_box.get_style_context ().add_class ("linked");
 
     this.stack = new Gtk.Stack ();
     stack.set_hexpand (true);
@@ -90,10 +85,13 @@ public class MainWidget : Gtk.Box {
       }
     }
 
-    Settings.get ().bind ("sidebar-visible", this.topbar_revealer, "reveal-child",
+    Settings.get ().bind ("sidebar-visible", this.top_box, "visible",
                           SettingsBindFlags.DEFAULT);
   }
 
+  public Gtk.Widget get_top_box () {
+    return top_box;
+  }
 
   /**
    * Switches the window's main notebook to the given page.

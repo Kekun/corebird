@@ -32,13 +32,26 @@ public class MainWindow : Gtk.ApplicationWindow {
   private Gtk.Box header_box;
   private Gtk.ToggleButton account_button;
   private Gtk.Label title_label;
-  private Gtk.Label last_page_label;
+  private Gtk.EventBox last_page_label;
   private Gtk.Stack title_stack;
   public Gtk.Button back_button;
   public Gtk.ToggleButton compose_tweet_button;
 
   private Gtk.MenuButton app_menu_button = null;
-  public MainWidget main_widget;
+  private MainWidget _main_widget;
+  public MainWidget main_widget {
+    set {
+      _main_widget = value;
+      // TODO drop previous box if any
+      if (value != null) {
+        var top_box = value.get_top_box ();
+        last_page_label.add (top_box);
+      }
+    }
+    get {
+      return _main_widget;
+    }
+  }
   public unowned Account? account;
   private ComposeTweetWindow? compose_tweet_window = null;
   private Gtk.GestureMultiPress thumb_button_gesture;
@@ -76,9 +89,7 @@ public class MainWindow : Gtk.ApplicationWindow {
     title_label.set_ellipsize (Pango.EllipsizeMode.MIDDLE);
     title_label.get_style_context ().add_class ("title");
     title_stack.add (title_label);
-    this.last_page_label = new Gtk.Label ("");
-    last_page_label.set_ellipsize (Pango.EllipsizeMode.MIDDLE);
-    last_page_label.get_style_context ().add_class ("title");
+    this.last_page_label = new Gtk.EventBox ();
     title_stack.add (last_page_label);
     headerbar.set_custom_title (title_stack);
 
@@ -548,13 +559,12 @@ public class MainWindow : Gtk.ApplicationWindow {
 
   public void set_window_title (string title,
                                 Gtk.StackTransitionType transition_type = Gtk.StackTransitionType.NONE) {
-    this.last_page_label.label = this.title_label.label;
     this.title_stack.transition_type = Gtk.StackTransitionType.NONE;
     this.title_stack.visible_child = last_page_label;
 
     this.title_stack.transition_type = transition_type;
     this.title_label.label = title;
-    this.title_stack.visible_child = title_label;
+    // this.title_stack.visible_child = title_label;
   }
 
   public void reply_to_tweet (int64 tweet_id) {
